@@ -1,11 +1,7 @@
 import axios from 'axios';
 
-const API = axios.create({
-  baseURL: `${process.env.REACT_APP_API_URL}/api`
-});
-
 const api = axios.create({
-    baseURL: API_URL,
+    baseURL: process.env.REACT_APP_API_URL + "/api",
     headers: {
         'Content-Type': 'application/json',
     },
@@ -19,15 +15,11 @@ api.interceptors.request.use(
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
-    (response) => {
-        return response;
-    },
+    (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
             localStorage.removeItem('token');
