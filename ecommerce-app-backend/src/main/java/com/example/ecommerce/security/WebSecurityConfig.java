@@ -100,7 +100,11 @@ public class WebSecurityConfig {
                             }
 
                             String jwt = jwtUtils.generateTokenFromUsername(user.getUsername());
-                            response.sendRedirect("http://localhost:3000/oauth2/redirect?token=" + jwt);
+                            String frontendUrl = System.getenv("APP_FRONTEND_URL");
+                            if (frontendUrl == null) {
+                                frontendUrl = "http://localhost:3000"; // fallback for local
+                            }
+                            response.sendRedirect(frontendUrl + "/oauth2/redirect?token=" + jwt);
                         })
                 );
 
@@ -113,7 +117,7 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Frontend React app
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://busybrains-assignment-ni8v.vercel.app")); // Frontend React app Vercel URL
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);

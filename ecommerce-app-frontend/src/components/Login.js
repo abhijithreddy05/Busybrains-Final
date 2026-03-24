@@ -21,7 +21,8 @@ const Login = () => {
     };
 
     const handleGoogleLogin = () => {
-        window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+        const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+        window.location.href = `${backendUrl}/oauth2/authorization/google`;
     };
 
     return (
