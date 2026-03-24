@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #0f172a;      /* Deep Slate */
+  --primary-hover: #1e293b; 
+  --accent: #0d9488;       /* Teal Accent for buttons */
+  --accent-hover: #0f766e;
+  --bg-main: #f1f5f9;      /* Light gray body */
+  --bg-card: #ffffff;
+  --text-main: #0f172a;
+  --text-link: #0284c7;    /* Amazon blue link style */
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --star-color: #fbbf24;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.01em;
+}
+
+.container {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.card {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+  border: 1px solid var(--border);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-danger {
+  background-color: white;
+  color: #ef4444;
+  border: 1px solid #fca5a5;
+}
+
+.btn-danger:hover {
+  background-color: #fee2e2;
+}
+
+.btn-success {
+  background-color: var(--accent);
+  color: white;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background-color: #ffffff;
+  color: var(--text-main);
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+}
+
+/* Amazon-style Navbar */
+.ama-navbar {
+    background-color: var(--primary);
+    color: white;
+}
+
+.ama-nav-top {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 20px;
+}
+
+.ama-brand {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-right: 10px;
+}
+
+.ama-logo-dot {
+    color: var(--accent);
+}
+
+.ama-search-container {
+    flex: 1;
+    display: flex;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 40px;
+}
+
+.ama-search-category {
+    background: #f3f4f6;
+    border: none;
+    padding: 0 10px;
+    color: #4b5563;
+    border-right: 1px solid #d1d5db;
+    cursor: pointer;
+}
+
+.ama-search-input {
+    flex: 1;
+    border: none;
+    padding: 0 12px;
+    font-size: 15px;
+    outline: none;
+}
+
+.ama-search-btn {
+    background: var(--accent);
+    border: none;
+    color: white;
+    padding: 0 15px;
+    cursor: pointer;
+}
+
+.ama-search-btn:hover {
+    background: var(--accent-hover);
+}
+
+.ama-nav-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.ama-nav-item {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 2px;
+    border: 1px solid transparent;
+}
+
+.ama-nav-item:hover {
+    border-color: rgba(255,255,255,0.7);
+}
+
+.ama-nav-line-1 {
+    font-size: 12px;
+    color: #cbd5e1;
+    line-height: 14px;
+}
+
+.ama-nav-line-2 {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 15px;
+}
+
+.ama-cart {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.ama-cart-count {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.ama-nav-bottom {
+    background-color: var(--primary-hover);
+    padding: 6px 20px;
+    display: flex;
+    gap: 15px;
+}
+
+.ama-nav-bottom a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 5px 8px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+}
+
+.ama-nav-bottom a:hover {
+    border-color: rgba(255,255,255,0.7);
+}
