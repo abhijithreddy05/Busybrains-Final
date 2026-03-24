@@ -73,8 +73,9 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // ⭐ IMPORTANT FIX
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/products").permitAll() // allows GET /api/products without auth (dashboard), but POST/PUT requires auth and role
+                        .requestMatchers("/api/products").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
