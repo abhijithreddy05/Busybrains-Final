@@ -69,8 +69,7 @@ public class WebSecurityConfig {
     @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-        .cors() // ⭐ ADD THIS LINE BACK
-        .and()
+        .cors(org.springframework.security.config.Customizer.withDefaults())
         .csrf(csrf -> csrf.disable())
         .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -128,20 +127,27 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.build();
 }
 
-    @Bean
+@Bean
 public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
-    configuration.setAllowedOrigins(Arrays.asList(
+    configuration.setAllowedOriginPatterns(Arrays.asList(
         "http://localhost:3000",
-        "https://busybrains-assignment-ni8v.vercel.app"
+        "https://busybrains-assignment-ni8v-*.vercel.app"
     ));
 
     configuration.setAllowedMethods(Arrays.asList(
         "GET", "POST", "PUT", "DELETE", "OPTIONS"
     ));
 
-    configuration.setAllowedHeaders(Arrays.asList("*"));
+    configuration.setAllowedHeaders(Arrays.asList(
+        "Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"
+    )); // ⭐ IMPORTANT
+
+    configuration.setExposedHeaders(Arrays.asList(
+        "Authorization"
+    )); // ⭐ ADD THIS
+
     configuration.setAllowCredentials(true);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
