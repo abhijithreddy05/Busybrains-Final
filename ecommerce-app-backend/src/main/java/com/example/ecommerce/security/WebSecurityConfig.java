@@ -67,62 +67,66 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-    .requestMatchers("/api/auth/**").permitAll()
-    .requestMatchers("/api/products").permitAll()
-    .requestMatchers(
-        "/", 
-        "/index.html", 
-        "/manifest.json", 
-        "/favicon.ico",
-        "/static/**",
-        "/*.js",
-        "/*.css"
-    ).permitAll() // ⭐ ADD THIS
-    .anyRequest().authenticated()
-)
-                .oauth2Login(oauth2 -> oauth2
-                        .successHandler((request, response, authentication) -> {
-                            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-                            OAuth2User oAuth2User = oauthToken.getPrincipal();
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .cors() // ⭐ ADD THIS LINE BACK
+        .and()
+        .csrf(csrf -> csrf.disable())
+        .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers("/api/auth/**").permitAll()
+            .requestMatchers("/api/products").permitAll()
+            .requestMatchers(
+                "/", 
+                "/index.html", 
+                "/manifest.json", 
+                "/favicon.ico",
+                "/static/**",
+                "/*.js",
+                "/*.css"
+            ).permitAll()
+            .anyRequest().authenticated()
+        )
+        .oauth2Login(oauth2 -> oauth2
+            .successHandler((request, response, authentication) -> {
+                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                OAuth2User oAuth2User = oauthToken.getPrincipal();
 
-                            String email = oAuth2User.getAttribute("email");
-                            String name = oAuth2User.getAttribute("name");
-                            if (name == null) name = email.split("@")[0];
+                String email = oAuth2User.getAttribute("email");
+                String name = oAuth2User.getAttribute("name");
+                if (name == null) name = email.split("@")[0];
 
-                            Optional<User> userOpt = userRepository.findByEmail(email);
-                            User user;
-                            if (userOpt.isEmpty()) {
-                                user = new User();
-                                user.setEmail(email);
-                                user.setUsername(name + "_" + UUID.randomUUID().toString().substring(0, 5));
-                                user.setPassword(passwordEncoder().encode(UUID.randomUUID().toString()));
-                                user.setRole(Role.ROLE_USER);
-                                userRepository.save(user);
-                            } else {
-                                user = userOpt.get();
-                            }
+                Optional<User> userOpt = userRepository.findByEmail(email);
+                User user;
 
-                            String jwt = jwtUtils.generateTokenFromUsername(user.getUsername());
-                            String frontendUrl = System.getenv("APP_FRONTEND_URL");
-                            if (frontendUrl == null) {
-                                frontendUrl = "http://localhost:3000"; // fallback for local
-                            }
-                            response.sendRedirect(frontendUrl + "/oauth2/redirect?token=" + jwt);
-                        })
-                );
+                if (userOpt.isEmpty()) {
+                    user = new User();
+                    user.setEmail(email);
+                    user.setUsername(name + "_" + UUID.randomUUID().toString().substring(0, 5));
+                    user.setPassword(passwordEncoder().encode(UUID.randomUUID().toString()));
+                    user.setRole(Role.ROLE_USER);
+                    userRepository.save(user);
+                } else {
+                    user = userOpt.get();
+                }
 
-        http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+                String jwt = jwtUtils.generateTokenFromUsername(user.getUsername());
+                String frontendUrl = System.getenv("APP_FRONTEND_URL");
+                if (frontendUrl == null) {
+                    frontendUrl = "http://localhost:3000";
+                }
 
-        return http.build();
-    }
+                response.sendRedirect(frontendUrl + "/oauth2/redirect?token=" + jwt);
+            })
+        );
+
+    http.authenticationProvider(authenticationProvider());
+    http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
+}
 
     @Bean
 public CorsConfigurationSource corsConfigurationSource() {
