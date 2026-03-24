@@ -2,8 +2,11 @@ package com.example.ecommerce.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.cors.*;
 
 import java.util.Arrays;
 
@@ -11,15 +14,15 @@ import java.util.Arrays;
 public class CorsConfig {
 
     @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
 
-        // ⭐ IMPORTANT: allow your frontend
+        // ⭐ Allow ALL Vercel deployments
         config.setAllowedOriginPatterns(Arrays.asList(
-                "https://busybrains-assignment-ni8v-*.vercel.app",
-                "https://busybrains-assignment-ni8v.vercel.app",
+                "https://*.vercel.app",
                 "http://localhost:3000"
         ));
 

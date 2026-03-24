@@ -19,11 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,7 +33,7 @@ public class WebSecurityConfig {
 
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
-    
+
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -67,92 +63,56 @@ public class WebSecurityConfig {
     }
 
     @Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .cors(org.springframework.security.config.Customizer.withDefaults())
-        .csrf(csrf -> csrf.disable())
-        .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-            .requestMatchers("/api/auth/**").permitAll()
-            .requestMatchers("/api/products").permitAll()
-            .requestMatchers(
-                "/", 
-                "/index.html", 
-                "/manifest.json", 
-                "/favicon.ico",
-                "/static/**",
-                "/*.js",
-                "/*.css"
-            ).permitAll()
-            .anyRequest().authenticated()
-        )
-        .oauth2Login(oauth2 -> oauth2
-            .successHandler((request, response, authentication) -> {
-                OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-                OAuth2User oAuth2User = oauthToken.getPrincipal();
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .cors() // ⭐ important
+            .and()
+            .csrf(csrf -> csrf.disable())
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/products").permitAll()
+                .anyRequest().authenticated()
+            )
+            .oauth2Login(oauth2 -> oauth2
+                .successHandler((request, response, authentication) -> {
+                    OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+                    OAuth2User oAuth2User = oauthToken.getPrincipal();
 
-                String email = oAuth2User.getAttribute("email");
-                String name = oAuth2User.getAttribute("name");
-                if (name == null) name = email.split("@")[0];
+                    String email = oAuth2User.getAttribute("email");
+                    String name = oAuth2User.getAttribute("name");
+                    if (name == null) name = email.split("@")[0];
 
-                Optional<User> userOpt = userRepository.findByEmail(email);
-                User user;
+                    Optional<User> userOpt = userRepository.findByEmail(email);
+                    User user;
 
-                if (userOpt.isEmpty()) {
-                    user = new User();
-                    user.setEmail(email);
-                    user.setUsername(name + "_" + UUID.randomUUID().toString().substring(0, 5));
-                    user.setPassword(passwordEncoder().encode(UUID.randomUUID().toString()));
-                    user.setRole(Role.ROLE_USER);
-                    userRepository.save(user);
-                } else {
-                    user = userOpt.get();
-                }
+                    if (userOpt.isEmpty()) {
+                        user = new User();
+                        user.setEmail(email);
+                        user.setUsername(name + "_" + UUID.randomUUID().toString().substring(0, 5));
+                        user.setPassword(passwordEncoder().encode(UUID.randomUUID().toString()));
+                        user.setRole(Role.ROLE_USER);
+                        userRepository.save(user);
+                    } else {
+                        user = userOpt.get();
+                    }
 
-                String jwt = jwtUtils.generateTokenFromUsername(user.getUsername());
-                String frontendUrl = System.getenv("APP_FRONTEND_URL");
-                if (frontendUrl == null) {
-                    frontendUrl = "http://localhost:3000";
-                }
+                    String jwt = jwtUtils.generateTokenFromUsername(user.getUsername());
 
-                response.sendRedirect(frontendUrl + "/oauth2/redirect?token=" + jwt);
-            })
-        );
+                    String frontendUrl = System.getenv("APP_FRONTEND_URL");
+                    if (frontendUrl == null) {
+                        frontendUrl = "http://localhost:3000";
+                    }
 
-    http.authenticationProvider(authenticationProvider());
-    http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+                    response.sendRedirect(frontendUrl + "/oauth2/redirect?token=" + jwt);
+                })
+            );
 
-    return http.build();
-}
+        http.authenticationProvider(authenticationProvider());
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
-@Bean
-public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-
-    configuration.setAllowedOriginPatterns(Arrays.asList(
-        "http://localhost:3000",
-        "https://busybrains-assignment-ni8v-*.vercel.app"
-    ));
-
-    configuration.setAllowedMethods(Arrays.asList(
-        "GET", "POST", "PUT", "DELETE", "OPTIONS"
-    ));
-
-    configuration.setAllowedHeaders(Arrays.asList(
-        "Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"
-    )); // ⭐ IMPORTANT
-
-    configuration.setExposedHeaders(Arrays.asList(
-        "Authorization"
-    )); // ⭐ ADD THIS
-
-    configuration.setAllowCredentials(true);
-
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
-
-    return source;
-}
+        return http.build();
+    }
 }
