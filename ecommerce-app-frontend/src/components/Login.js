@@ -21,7 +21,7 @@ const Login = () => {
     };
 
     const handleGoogleLogin = () => {
-        const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+        const backendUrl = process.env.REACT_APP_API_URL;
         window.location.href = `${backendUrl}/oauth2/authorization/google`;
     };
 
@@ -62,6 +62,17 @@ const Login = () => {
             </div>
         </div>
     );
+};
+const backendUrl = process.env.REACT_APP_API_URL;
+
+if (!backendUrl) {
+    alert("API URL not configured");
+    return;
+}
+const handleGoogleLogin = () => {
+    const backendUrl = process.env.REACT_APP_API_URL;
+
+    window.location.href = `${backendUrl}/oauth2/authorization/google`;
 };
 
 export default Login;
