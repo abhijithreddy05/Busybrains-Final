@@ -73,11 +73,20 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // ⭐ IMPORTANT FIX
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/products").permitAll()
-                        .anyRequest().authenticated()
-                )
+    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+    .requestMatchers("/api/auth/**").permitAll()
+    .requestMatchers("/api/products").permitAll()
+    .requestMatchers(
+        "/", 
+        "/index.html", 
+        "/manifest.json", 
+        "/favicon.ico",
+        "/static/**",
+        "/*.js",
+        "/*.css"
+    ).permitAll() // ⭐ ADD THIS
+    .anyRequest().authenticated()
+)
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler((request, response, authentication) -> {
                             OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
